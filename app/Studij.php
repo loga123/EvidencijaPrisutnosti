@@ -13,7 +13,7 @@ class Studij extends Model
 
     /**
      * The attributes that are mass assignable.
-     *v
+     *vdhdhgdhg
      * @var array
      */
     protected $fillable = [
