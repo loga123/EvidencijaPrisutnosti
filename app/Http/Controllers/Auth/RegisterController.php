@@ -6,6 +6,8 @@ use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\Auth;//dodano za autentifikaciju admina(rovjeru korisnika)
+use Mockery\Matcher\Closure;
 
 class RegisterController extends Controller
 {
@@ -28,6 +30,7 @@ class RegisterController extends Controller
      * @var string
      */
     protected $redirectTo = '/';
+    protected $user;
 
     /**
      * Create a new controller instance.
@@ -36,7 +39,12 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
+        $this->middleware('auth');  //auth ako je korisnik prijavljen inače guest da se može bilo tko prijaviti
+    }
+
+    public function admin()
+    {
+        return view('auth/register');
     }
 
     /**

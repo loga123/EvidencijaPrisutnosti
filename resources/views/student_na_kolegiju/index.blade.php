@@ -6,11 +6,7 @@
 <script data-require="jquery@*" data-semver="2.0.3" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
 <script data-require="bootstrap@*" data-semver="3.1.1" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
-
     <div class="row">
-
-
-
 
         <div class="col-md-6 col-md-offset-3" style="margin-top: 50px;">
 
@@ -22,6 +18,13 @@
 
                 <h1 class="text-center"><b><a href="{{ url('admin/kolegij/'.$kolegij->sifra_kolegija.'/') }}">{{$kolegij->naziv}}</a></b></h1>
 
+
+                <div class="col-md-4 col-md-offset-4">
+
+                    <a href="{{ url('student-kolegij/kolegij/'.$kolegij->sifra_kolegija.'/unos') }}" class="btn btn-info">Unos studenata na kolegij</a>
+
+                </div>
+                <br><br><br>
                     <table class="table table-striped table-bordered table-hover">
                         <thead>
                         <tr class="bg-info">

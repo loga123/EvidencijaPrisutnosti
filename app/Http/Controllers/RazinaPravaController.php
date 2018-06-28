@@ -9,6 +9,12 @@ use DB;
 
 class RazinaPravaController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');  //auth ako je korisnik prijavljen inače guest da se može bilo tko prijaviti
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -47,6 +53,17 @@ class RazinaPravaController extends Controller
             'opis.required' => 'Niste unijeli opis razine prava!',
 
         ]);
+
+        $provjeraPostojanja = DB::table('razina_prava')
+            ->where('razina_prava.opis', '=', $request->opis)
+            ->count();
+
+        if($provjeraPostojanja==1){
+
+            Session::flash('flash_message1', 'Unesena razina prava već postoji!');
+            return redirect()->back();
+        }
+
 
         $razina = new RazinaPrava(array(
 
@@ -121,18 +138,20 @@ class RazinaPravaController extends Controller
         ]);
         $input = $request->all();
 
+        $provjeraPostojanja = DB::table('razina_prava')
+            ->where('razina_prava.opis', '=', $request->opis)
+            ->count();
+
+        if($provjeraPostojanja==1){
+
+            Session::flash('flash_message1', 'Unesena razina prava već postoji!');
+            return redirect()->back();
+        }
+
         $provjeraKoristenjaFKSUsers = DB::table('users')
             ->leftJoin('razina_prava', 'users.razina_prava', '=', 'razina_prava.sifra_razine')
             ->where('users.razina_prava', '=',$id)
             ->count();
-
-
-
-        /* if($provjeraPostojanja==1){
-
-             Session::flash('flash_message1', 'Grad s tim nazivom već postoji za tu županiju!');
-             return redirect()->back();
-         }*/
 
         if($provjeraKoristenjaFKSUsers !=0){
 
@@ -142,8 +161,6 @@ class RazinaPravaController extends Controller
             return redirect()->back();
 
         }
-
-
 
         if($razine_prava->update($input)){
 

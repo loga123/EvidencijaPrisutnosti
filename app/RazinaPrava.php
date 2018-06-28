@@ -12,20 +12,10 @@ class RazinaPrava extends Model
     use Notifiable;
     protected $primaryKey = 'sifra_razine';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'opis',
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
     protected $hidden = [
         'sifra_razine',
     ];

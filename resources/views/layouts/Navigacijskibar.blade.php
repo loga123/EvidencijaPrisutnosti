@@ -44,7 +44,7 @@
                 <!-- Authentication Links -->
                 @if (Auth::guest())
                     <li><a href="{{ url('/login') }}" id="navbar-slovaall">PRIJAVI SE</a></li>
-                    <li><a href="{{ url('/register') }}" id="nav-bar-registerall">REGISTRIRAJ SE</a></li>
+                   <!-- <li><a href="{{ url('/register') }}" id="nav-bar-registerall">REGISTRIRAJ SE</a></li>-->
                 @else
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" id="navbar-slovaall" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -60,7 +60,7 @@
                             <li><a href="{{ url('/korisnik/'.Auth::user()->sifra_korisnika.'/edit-password') }}"><i class="fa fa-btn fa-cog"></i>Izmjena lozinke</a></li>
 
                             @elseif(Auth::user()->razina_prava==1)
-                                <li><a href="{{ url('/termin') }}"><i class="fa fa-btn fa-folder-open"></i>Evidencija studenata</a></li>
+                                <li><a href="{{ url('/evidencija') }}"><i class="fa fa-btn fa-folder-open"></i>Evidencija studenata</a></li>
                                 <li><a href="{{ url('/korisnik/'.Auth::user()->sifra_korisnika.'/') }}"><i class="fa fa-btn fa-user"></i>Moj profil</a></li>
                                 <li><a href="{{ url('/korisnik/'.Auth::user()->sifra_korisnika.'/edit') }}"><i class="fa fa-btn fa-user"></i>Uredi profil</a></li>
                                 <li><a href="{{ url('/korisnik/'.Auth::user()->sifra_korisnika.'/edit-password') }}"><i class="fa fa-btn fa-cog"></i>Izmjena lozinke</a></li>
@@ -68,7 +68,8 @@
 
                             @elseif(Auth::user()->razina_prava==2)
                                 <li><a href="{{ url('/korisnik/'.Auth::user()->sifra_korisnika.'/') }}"><i class="fa fa-btn fa-user"></i>Moj profil</a></li>
-                                <li><a href="{{ url('/termin') }}"><i class="fa fa-btn fa-folder-open"></i>Evidencija studenata</a></li>
+                                <li><a href="{{ url('/korisnik/create') }}"><i class="fa fa-btn fa-folder-open"></i>Registracija studenta</a></li>
+                                <li><a href="{{ url('/evidencija') }}"><i class="fa fa-btn fa-folder-open"></i>Evidencija studenata</a></li>
                                 <li><a href="{{ url('/student-kolegij') }}"><i class="fa fa-btn fa-folder-open"></i>Prikaz studenata po kolegiju</a></li>
                                 <li><a href="{{ url('/termin/create') }}"><i class="fa fa-btn fa-folder-open"></i>Dodaj novi termin</a></li>
                                 <li><a href="{{ url('/korisnik/'.Auth::user()->sifra_korisnika.'/edit') }}"><i class="fa fa-btn fa-user"></i>Uredi profil</a></li>
@@ -93,11 +94,11 @@
                     </li>
                     <li>
                         @if(Auth::user()->razina_prava==1)
-                        <a href="{{ url('/termin') }}" class="navbar-plusic-all" title="Pregled prisutnosti studenata" style="padding-top: 15px; margin-bottom: 0px; padding-bottom: 5px;">
+                        <a href="{{ url('/evidencija') }}" class="navbar-plusic-all" title="Pregled prisutnost studenata" style="padding-top: 15px; margin-bottom: 0px; padding-bottom: 5px;">
                             <p id="navbar-izradi-oglas-all">+ EVIDENCIJA PRISUTNOST</p><p id="navbar-izradi-oglas-off-all">+</p>
                         </a>
                         @elseif(Auth::user()->razina_prava==2)
-                        <a href="{{ url('/termin') }}" class="navbar-plusic-all" title="Prijavi prisutnosti studenata" style="padding-top: 15px; margin-bottom: 0px; padding-bottom: 5px;">
+                        <a href="{{ url('/evidencija') }}" class="navbar-plusic-all" title="Prijavi prisutnost studenata" style="padding-top: 15px; margin-bottom: 0px; padding-bottom: 5px;">
                             <p id="navbar-izradi-oglas-all">+ EVIDENCIJA PRISUTNOST</p><p id="navbar-izradi-oglas-off-all">+</p>
                         </a>
                         @elseif(Auth::user()->razina_prava==3)
