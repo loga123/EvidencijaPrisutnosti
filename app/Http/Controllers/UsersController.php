@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Input;
 
 class UsersController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');  //auth ako je korisnik prijavljen inače guest da se može bilo tko prijaviti
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -61,7 +66,7 @@ class UsersController extends Controller
             'prezime' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
-            'kartica' => 'required|numeric',
+            'broj_iskaznice' => 'required|numeric|unique:users',
             'razina_prava' =>'required|not_in:0'
 
         ],[
@@ -79,8 +84,9 @@ class UsersController extends Controller
             'password.required' => 'Niste unijeli lozinku!',
             'password.min' => 'Lozinka mora imati minimalno 6 znakova!',
             'password.confirmed' => 'Lozinke se ne podudaraju!',
-            'kartica.required' => 'Niste unijeli broj X-ice!',
-            'kartica.numeric' => 'Broj X-ice mora biti u brojčanom formatu!',
+            'broj_iskaznice.unique' => 'Postoji korisnik u sustav s tim brojem X-ice!',
+            'broj_iskaznice.required' => 'Niste unijeli broj X-ice!',
+            'broj_iskaznice.numeric' => 'Broj X-ice mora biti u brojčanom formatu!',
             'razina_prava.required' => 'Niste odabrali razinu prava!',
             'razina_prava.not_in' => 'Niste odabrali razinu prava!',
         ]);
@@ -90,26 +96,18 @@ class UsersController extends Controller
                 'prezime' =>$request->get('prezime'),
                 'email' => $request->get('email'),
                 'password' => bcrypt($request->get('password')),
-                'broj_iskaznice' => $request->get('kartica'),
+                'broj_iskaznice' => $request->get('broj_iskaznice'),
                 'razina_prava' => $request->get('razina_prava'),
-
             ));
-
-
 
                 if($korisnik->save()){
 
                 Session::flash('flash_message', 'Uspješan unos korisnika: "'.$korisnik->ime.' '.$korisnik->prezime.'" ');
-
                 return redirect()->back();
 
                 }else
-
                     Session::flash('flash_message1', 'Korisnik nije unesen!');
-
                     return redirect()->back();
-
-
     }
 
     /**

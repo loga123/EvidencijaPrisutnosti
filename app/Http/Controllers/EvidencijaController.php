@@ -14,6 +14,11 @@ use Carbon\Carbon;
 
 class EvidencijaController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');  //auth ako je korisnik prijavljen inače guest da se može bilo tko prijaviti
+    }
     /**
      * Display a listing of the resource.
      *

@@ -148,7 +148,7 @@
 
                                     <button type="submit" value="Submit" class="btn btn-primary">
 
-                                        <i class="fa fa-btn fa-user"></i>Registriraj se
+                                        <i class="fa fa-btn fa-user"></i>Registriraj korisnika
 
                                     </button>
 

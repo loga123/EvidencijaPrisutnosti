@@ -17,7 +17,7 @@ class Evidencija extends Model
      * @var array
      */
     protected $fillable = [
-        'sifra_evidencije','vrsta_predavanja','datum_evidentiranja','prisutnost','sifra_studenta_na_kolegiju',
+        'sifra_evidencije','vrsta_predavanja','datum_evidentiranja','prisutnost','sifra_studenta_na_kolegiju','sifra_termina',
     ];
 
     /**
@@ -26,6 +26,6 @@ class Evidencija extends Model
      * @var array
      */
     protected $hidden = [
-        'sifra_evidencije','sifra_studenta_na_kolegiju',
+
     ];
 }

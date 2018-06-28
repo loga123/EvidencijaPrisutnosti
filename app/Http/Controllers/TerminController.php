@@ -12,6 +12,12 @@ use Session;
 
 class TerminController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');  //auth ako je korisnik prijavljen inače guest da se može bilo tko prijaviti
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -145,12 +151,14 @@ class TerminController extends Controller
         $termin = Termin::findOrFail($id);
 
         $users = DB::table('users')
+            ->select('users.*','evidencija.*')
             ->leftJoin('student_na_kolegiju', 'student_na_kolegiju.sifra_korisnika', '=', 'users.sifra_korisnika')
             ->leftJoin('evidencija', 'student_na_kolegiju.sifra_studenta_na_kolegiju', '=', 'evidencija.sifra_studenta_na_kolegiju')
-            ->where('evidencija.datum_evidentiranja', '=', $termin->datum)
-            ->where('evidencija.prisutnost', '=', 1)
-            ->where('student_na_kolegiju.sifra_kolegija', '=', $termin->sifra_kolegija)
+            ->where('evidencija.sifra_termina', '=', $termin->sifra_termina)
+           // ->where('evidencija.prisutnost', '=', 1)
+           ->where('student_na_kolegiju.sifra_kolegija', '=', $termin->sifra_kolegija)
             ->orderBy('users.prezime','asc')->get();
+
 
 
         return view('termin.prikaziTerminpoID-u', compact('termin', 'users'));
@@ -190,11 +198,9 @@ class TerminController extends Controller
         $termin = Termin::findOrFail($id);
 
 
-        $provjeraKoristenjaFK = DB::table('termin')
-            ->leftJoin('kolegij', 'termin.sifra_kolegija', '=', 'kolegij.sifra_kolegija')
-            ->leftJoin('student_na_kolegiju', 'student_na_kolegiju.sifra_kolegija', '=', 'kolegij.sifra_kolegija')
-            ->leftJoin('evidencija', 'student_na_kolegiju.sifra_studenta_na_kolegiju', '=', 'evidencija.sifra_studenta_na_kolegiju')
-            ->where('evidencija.datum_evidentiranja', '=', $termin->datum)
+        $provjeraKoristenjaFK = DB::table('evidencija')
+            ->leftJoin('termin', 'termin.sifra_termina', '=', 'evidencija.sifra_termina')
+            ->where('evidencija.sifra_termina', '=', $termin->sifra_termina)
             ->count();
 
 
@@ -211,7 +217,7 @@ class TerminController extends Controller
 
             Session::flash('flash_message', 'Termin uspješno obrisan!');
 
-            return redirect('termin');
+            return redirect('evidencija');
 
         } else {
 

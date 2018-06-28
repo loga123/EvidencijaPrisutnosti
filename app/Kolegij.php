@@ -17,7 +17,7 @@ class Kolegij extends Model
      * @var array
      */
     protected $fillable = [
-        'sifra_kolegija','naziv','sifra_profesora',
+        'sifra_kolegija','naziv','sifra_profesora','sifra_godine',
     ];
 
     /**

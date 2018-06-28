@@ -12,6 +12,11 @@ use Session;
 
 class KolegijController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');  //auth ako je korisnik prijavljen inače guest da se može bilo tko prijaviti
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -32,10 +37,11 @@ class KolegijController extends Controller
      */
     public function create()
     {
-
+        $studiji = DB::table('studij')->orderBy('naziv', 'asc')->get();
+        $godine = DB::table('akademska_godina')->orderBy('broj', 'asc')->get();
         $profesori = DB::table('users')->where('razina_prava','=',2)->orderBy('ime', 'asc')->get();
 
-        return view('kolegij.unos',compact('profesori'));
+        return view('kolegij.unos',compact('profesori','studiji','godine'));
 
     }
 
@@ -49,15 +55,32 @@ class KolegijController extends Controller
     {
         $this->validate($request,[
             'naziv' => 'required',
-           // 'sifra_korisnika' => 'required|not_in:0',
+            'sifra_studija' => 'required|not_in:0',
+            'sifra_godine' => 'required|not_in:0',
 
         ],[
             //Custom Error poruke
             'naziv.required' => 'Niste unijeli naziv kolegija!',
-            //'sifra_korisnika.required' => 'Niste odabrali nositelja kolegija!',
-            //'sifra_korisnika.not_in' => 'Niste odabrali nositelja kolegija!',
+            'sifra_studija.required' => 'Niste odabrali studij!',
+            'sifra_studija.not_in' => 'Niste odabrali studij!',
+            'sifra_godine.required' => 'Niste odabrali godinu studija!',
+            'sifra_godine.not_in' => 'Niste odabrali godinu studija!',
 
         ]);
+
+        $provjeraPostojanja = DB::table('kolegij')
+            ->leftJoin('akademska_godina', 'akademska_godina.sifra_godine', '=', 'kolegij.sifra_godine')
+            ->leftJoin('studij', 'akademska_godina.sifra_studija', '=', 'studij.sifra_studija')
+            ->where('kolegij.naziv', '=', $request->naziv)
+            ->where('akademska_godina.sifra_godine', '=', $request->sifra_godine)
+            ->where('studij.sifra_studija', '=', $request->sifra_studija)
+            ->count();
+
+        if($provjeraPostojanja==1){
+
+            Session::flash('flash_message1', 'Uneseni naziv kolegija već postoji za tu akademsku godinu i taj studij!');
+            return redirect()->back();
+        }
 
         if($request->get('sifra_korisnika')!=0){
 
@@ -65,6 +88,7 @@ class KolegijController extends Controller
 
                 'naziv' => $request->get('naziv'),
                 'sifra_profesora' => $request->get('sifra_korisnika'),
+                'sifra_godine' => $request->get('sifra_godine'),
             ));
 
             if($kolegij->save()){
@@ -79,7 +103,6 @@ class KolegijController extends Controller
 
             return redirect()->back();
 
-
         }
 
         else{
@@ -87,6 +110,7 @@ class KolegijController extends Controller
             $kolegij = new Kolegij(array(
 
                 'naziv' => $request->get('naziv'),
+                'sifra_godine' => $request->get('sifra_godine'),
 
             ));
 
@@ -140,6 +164,9 @@ class KolegijController extends Controller
     {
         $kolegij = Kolegij::findOrFail($id);
         $profesori = DB::table('users')->where('razina_prava','=',2)->orderBy('ime', 'asc')->get();
+        $studiji = DB::table('studij')->orderBy('naziv', 'asc')->get();
+        $godine = DB::table('akademska_godina')->orderBy('broj', 'asc')->get();
+
 
         $nazivProfesora = DB::table('users')
             ->select('users.ime','users.prezime')
@@ -147,7 +174,18 @@ class KolegijController extends Controller
             ->where('users.sifra_korisnika', '=', $kolegij->sifra_profesora)
             ->first();
 
-        return view('kolegij.uredivanjeKolegija',compact('kolegij','profesori','nazivProfesora'));
+        $nazivStudija = DB::table('studij')
+            ->select('studij.*')
+            ->join('akademska_godina', 'akademska_godina.sifra_studija', '=', 'studij.sifra_studija')
+            ->where('akademska_godina.sifra_godine', '=', $kolegij->sifra_godine)
+            ->first();
+
+        $nazivGodine = DB::table('akademska_godina')
+            ->select('akademska_godina.*')
+            ->where('akademska_godina.sifra_godine', '=', $kolegij->sifra_godine)
+            ->first();
+
+        return view('kolegij.uredivanjeKolegija',compact('kolegij','profesori','nazivProfesora','studiji','nazivStudija','godine','nazivGodine'));
     }
 
     /**
@@ -165,6 +203,10 @@ class KolegijController extends Controller
 
             'naziv' => 'required',
             //'sifra_profesora' => 'required|numeric|not_in:0',
+            'sifra_studija' => 'required|numeric|not_in:0',
+            'sifra_godine' => 'required|numeric|not_in:0',
+            'sifra_profesora' => 'required|numeric|not_in:0',
+
 
 
         ],[
@@ -173,14 +215,31 @@ class KolegijController extends Controller
             //'sifra_profesora.required' => 'Niste odabrali nositelja kolegija!',
             //'sifra_profesora.not_in' => 'Niste odabrali nositelja kolegija!',
            // 'sifra_profesora.numeric' => 'Vrijednost odabranog nositelja kolegija mora biti u brojčanom formatu!',
-
+            'sifra_studija.required' => 'Niste odabrali studij!',
+            'sifra_studija.not_in' => 'Niste odabrali studij!',
+            'sifra_studija.numeric' => 'Vrijednost odabranog studija mora biti u brojčanom formatu!',
+            'sifra_godine.required' => 'Niste odabrali akademsku godinu!',
+            'sifra_godine.not_in' => 'Niste odabrali akademsku godinu!',
+             'sifra_godine.numeric' => 'Vrijednost odabrane akademske godine mora biti u brojčanom formatu!',
+            'sifra_profesora.required' => 'Niste odabrali nositelja kolegija!',
+            'sifra_profesora.not_in' => 'Niste odabrali nositelja kolegija!',
+            'sifra_profesora.numeric' => 'Vrijednost odabranog nositelja kolegija mora biti u brojčanom formatu!',
         ]);
         $input = $request->all();
 
-        /*$provjeraPostojanja = DB::table('gradovi')
-            ->where('gradovi.naziv_grada', '=', $input['naziv_grada'])
-            ->where('gradovi.id_zupanije', '=', $input['id_zupanije'])
-            ->count();*/
+        $provjeraPostojanja = DB::table('kolegij')
+            ->leftJoin('akademska_godina', 'akademska_godina.sifra_godine', '=', 'kolegij.sifra_godine')
+            ->leftJoin('studij', 'akademska_godina.sifra_studija', '=', 'studij.sifra_studija')
+            ->where('kolegij.naziv', '=', $request->naziv)
+            ->where('akademska_godina.sifra_godine', '=', $request->sifra_godine)
+            ->where('studij.sifra_studija', '=', $request->sifra_studija)
+            ->count();
+
+        /*if($provjeraPostojanja==1){
+
+            Session::flash('flash_message1', 'Uneseni naziv kolegija već postoji za tu akademsku godinu i taj studij!');
+            return redirect()->back();
+        }
 
         $provjeraKoristenjaFKStudentNaKolegiju = DB::table('student_na_kolegiju')
             ->leftJoin('kolegij', 'student_na_kolegiju.sifra_kolegija', '=', 'kolegij.sifra_kolegija')
@@ -188,12 +247,6 @@ class KolegijController extends Controller
             ->count();
 
 
-
-        /* if($provjeraPostojanja==1){
-
-             Session::flash('flash_message1', 'Grad s tim nazivom već postoji za tu županiju!');
-             return redirect()->back();
-         }*/
 
         if($provjeraKoristenjaFKStudentNaKolegiju !=0){
 
@@ -204,7 +257,7 @@ class KolegijController extends Controller
 
         }
 
-
+*/
 
         if($kolegij->update($input)){
 
@@ -237,7 +290,6 @@ class KolegijController extends Controller
             ->where('student_na_kolegiju.sifra_kolegija', '=',$id)
             ->count();
 
-
         if($provjeraKoristenjaFKStudentNaKolegiju !=0){
 
 
@@ -261,8 +313,6 @@ class KolegijController extends Controller
 
         }
     }
-
-
 
 
     //PROFEOSRI _ KOLEGIJI

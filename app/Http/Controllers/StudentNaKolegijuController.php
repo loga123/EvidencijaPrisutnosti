@@ -8,9 +8,16 @@ use Illuminate\Http\Request;
 use DB;
 use Session;
 use Auth;
+use App\User;
 
 class StudentNaKolegijuController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');  //auth ako je korisnik prijavljen inače guest da se može bilo tko prijaviti
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -193,5 +200,80 @@ class StudentNaKolegijuController extends Controller
 
 
         return view('student_na_kolegiju.index1',compact('kolegiji','korisnici','studenti_na_kolegiju'));
+    }
+
+    public function destroy1($id)
+    {
+        $student = StudentNaKolegiju::findOrFail($id);
+
+
+        if($student->delete()){
+
+            Session::flash('flash_message', 'Student uspješno obrisan sa kolegija!');
+
+            return redirect('student-kolegij');
+
+        }else{
+
+            Session::flash('flash_message1', 'Student nije obrisan sa kolegija. Greška sustava!');
+
+            return redirect()->back();
+
+        }
+    }
+
+    //prikazi rutu student-kolegij/kolegij/id/unos ---unos studenata na kolegij
+    public function show1($id)
+    {
+
+        $kolegij = Kolegij::findOrFail($id);
+
+        $korisnici = DB::table('users')
+           // ->leftJoin('student_na_kolegiju', 'student_na_kolegiju.sifra_korisnika', '=', 'users.sifra_korisnika')
+            ->where('razina_prava','=',3)
+           // ->where('student_na_kolegiju.sifra_kolegija','!=',$kolegij->sifra_kolegija)
+            ->orderBy('users.prezime','asc')
+            ->get();
+
+        $studenti_na_kolegiju = DB::table('users')
+            ->leftJoin('student_na_kolegiju', 'student_na_kolegiju.sifra_korisnika', '=', 'users.sifra_korisnika')
+            ->where('student_na_kolegiju.sifra_kolegija', '=', $kolegij->sifra_kolegija)
+            ->orderBy('users.prezime','asc')
+            ->get();
+
+        return view('student_na_kolegiju.dodajStudente',compact('kolegij','korisnici','studenti_na_kolegiju'));
+
+
+    }
+
+    //student na kolegiju
+    public function postaviStudenta(Request $request,$id)
+    {
+        $student = User::findOrFail($id);
+
+        $student_na_kolegiju = new StudentNaKolegiju(array(
+
+            'sifra_kolegija' => $request->get('sifra_kolegija'),
+            'sifra_korisnika' => $student->sifra_korisnika,
+        ));
+
+        $nazivKolegija = DB::table('kolegij')
+            ->select('kolegij.sifra_kolegija','kolegij.naziv')
+            ->where('sifra_kolegija','=',$request->sifra_kolegija)
+            ->first();
+
+        if($student_na_kolegiju->save()){
+
+            Session::flash('flash_message', 'Uspješan unos studenta: "'.$student->ime.' '.$student->prezime.'" na kolegij "'.$nazivKolegija->naziv.'" ');
+
+            return redirect()->back();
+
+        }else
+
+            Session::flash('flash_message1', 'Povezivanje studenta s kolegijom nije uspješno!');
+
+        return redirect()->back();
+
+
     }
 }

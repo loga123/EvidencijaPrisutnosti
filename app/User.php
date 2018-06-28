@@ -28,7 +28,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'lozinka', 'remember_token','sifra_korisnika','broj_iskaznice','razina_prava',
+        'lozinka', 'remember_token','broj_iskaznice','razina_prava',
     ];
 
 
